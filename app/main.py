@@ -1,9 +1,12 @@
+import os
 import json
 from pydantic import BaseModel
 from fastapi import FastAPI
 from worker import celery
 
-app = FastAPI()
+title = os.getenv("TITLE")
+
+app = FastAPI(title=title)
 
 
 class Item(BaseModel):
@@ -14,7 +17,7 @@ class Item(BaseModel):
 async def create_item(item: Item):
     task_name = "hello.task"
     task = celery.send_task(task_name, args=[item.name])
-    return dict(id=task.id, url='localhost:5000/check_task/{}'.format(task.id))
+    return dict(id=task.id, url='localhost:8000/check_task/{}'.format(task.id))
 
 
 @app.get("/check_task/{id}")

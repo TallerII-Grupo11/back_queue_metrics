@@ -6,3 +6,4 @@ CELERY_RESULT_BACKEND = os.getenv("BROKER")
 
 celery = Celery("celery", backend=CELERY_BROKER_URL, broker=CELERY_RESULT_BACKEND)
 
+TITLE = os.getenv("TITLE")

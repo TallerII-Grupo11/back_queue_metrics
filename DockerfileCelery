@@ -5,4 +5,3 @@ RUN pip install -r /requirements.txt
 
 COPY ./celery /celery_tasks
 WORKDIR /celery_tasks
-WORKDIR /celery_tasks
