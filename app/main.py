@@ -1,23 +1,36 @@
 import os
 import json
 from pydantic import BaseModel
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 from worker import celery
+from metric_name import *
+from model import User, Task 
 
 title = os.getenv("TITLE")
 
 app = FastAPI(title=title)
 
 
-class Item(BaseModel):
-    name: str
+@app.post("/login")
+async def new_login(user: User,  federated: bool = None):
+    task_name = metric_login(federated)
+    task = celery.send_task(task_name, args=[user.id])
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
 
 
-@app.post("/task_hello_world/")
-async def create_item(item: Item):
-    task_name = "hello.task"
-    task = celery.send_task(task_name, args=[item.name])
-    return dict(id=task.id, url='localhost:8000/check_task/{}'.format(task.id))
+@app.post("/register")
+async def new_register(user: User, federated: bool = None):
+    task_name = metric_register(federated)
+    task = celery.send_task(task_name, args=[user.id])
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+    #return dict(task_id=task.id)
 
 
 @app.get("/check_task/{id}")
@@ -39,4 +52,7 @@ def check_task(id: str):
             'result': task.info,
             'task_id': id
         }
-    return response
+    return JSONResponse(
+        content=response,
+        status_code=status.HTTP_200_OK
+    )
