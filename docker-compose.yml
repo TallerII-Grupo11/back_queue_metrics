@@ -4,14 +4,12 @@ services:
   web:
     build:
       context: .
-      dockerfile: DockerfileA.web
+      dockerfile: Dockerfile.web
     image: web:latest
     env_file:
       - .env
     ports:
       - "8000:8000"
-    depends_on:
-      - redis
     command: sh web_starter.sh
 
   worker:
@@ -21,9 +19,5 @@ services:
     image: worker:latest
     env_file:
       - .env
-    depends_on:
-      - redis
     command: sh worker_starter.sh
 
-  redis:
-    image: redis
