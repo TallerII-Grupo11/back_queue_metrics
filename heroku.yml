@@ -1,4 +1,4 @@
 build:
   docker:
-    web: DockerfileApp
-    worker: DockerfileCelery
+    web: Dockerfile.web
+    worker: Dockerfile.worker

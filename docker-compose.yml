@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: DockerfileApp
+      dockerfile: DockerfileA.web
     image: web:latest
     env_file:
       - .env
@@ -17,7 +17,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: DockerfileCelery
+      dockerfile: Dockerfile.worker
     image: worker:latest
     env_file:
       - .env
