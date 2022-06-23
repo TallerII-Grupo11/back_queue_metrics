@@ -55,14 +55,53 @@ def user_register(self, user_id):
         raise ex
 
 
-@celery.task(name='user.login.federated', bind=True, acks_late=True)
-def user_register(self, user_id):
+#@celery.task(name='user.login.federated', bind=True, acks_late=True)
+#def user_register(self, user_id):
+#    try:
+#        LOGGER.info('Starting login federated task')
+#        total = red.hincrby("metric:user.login.federated", "quantity", 1)
+#        LOGGER.info('Finished login federated task')
+#        return {"result": f"New user login federated {user_id}",
+#                "total": f"{total}"}
+#    except Exception as ex:
+#        self.update_state(
+#            state=states.FAILURE,
+#            meta={
+#                'exc_type': type(ex).__name__,
+#                'exc_message': traceback.format_exc().split('\n')
+#            })
+#        raise ex
+
+
+#@celery.task(name='user.register.federated', bind=True, acks_late=True)
+#def user_register(self, user_id):
+#    try:
+#        LOGGER.info('Starting register federated task')
+#        total = red.hincrby("metric:user.register.federated", "quantity", 1)
+#        LOGGER.info('Finished register federated task')
+#        return {"result": f"New user register {user_id}",
+#                "total": f"{total}"}
+#    except Exception as ex:
+#        self.update_state(
+#            state=states.FAILURE,
+#            meta={
+#                'exc_type': type(ex).__name__,
+#                'exc_message': traceback.format_exc().split('\n')
+#            })
+#        raise ex
+
+
+@celery.task(name='user.register.result', bind=True, acks_late=True)
+def user_register(self):
     try:
-        LOGGER.info('Starting login federated task')
-        total = red.hincrby("metric:user.login.federated", "quantity", 1)
-        LOGGER.info('Finished login federated task')
-        return {"result": f"New user login federated {user_id}",
-                "total": f"{total}"}
+        metric_name = "metric:user.register"
+        total = red.hget(metric_name, "quantity")
+        if not total:
+            total = 0
+        else:
+            total = total.decode("utf-8")
+        return {"metric_name": metric_name,
+                "total": total}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
@@ -73,14 +112,17 @@ def user_register(self, user_id):
         raise ex
 
 
-@celery.task(name='user.register.federated', bind=True, acks_late=True)
-def user_register(self, user_id):
+@celery.task(name='user.login.result', bind=True, acks_late=True)
+def user_register(self):
     try:
-        LOGGER.info('Starting register federated task')
-        total = red.hincrby("metric:user.register.federated", "quantity", 1)
-        LOGGER.info('Finished register federated task')
-        return {"result": f"New user register {user_id}",
-                "total": f"{total}"}
+        metric_name = "metric:user.login"
+        total = red.hget(metric_name, "quantity")
+        if not total:
+            total = 0
+        else:
+            total = total.decode("utf-8")
+        return {"metric_name": metric_name,
+                "total": total}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,

@@ -1,16 +1,20 @@
 import os
 import json
+import time
 from pydantic import BaseModel
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from worker import celery
 from metric_name import *
-from model import User, Task 
+from model import User, Task
+from logging import getLogger
 
 title = os.getenv("TITLE")
 port = os.getenv("PORT")
 
 app = FastAPI(title=title)
+
+LOGGER = getLogger(__name__)
 
 
 @app.post("/login")
@@ -31,7 +35,29 @@ async def new_register(user: User, federated: bool = None):
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
     )
-    #return dict(task_id=task.id)
+
+@app.get("/register/result")
+async def register_result(federated: bool = None):
+    task_name = metric_register_result(federated)
+    task = celery.send_task(task_name)
+    result = task.get()
+
+    return JSONResponse(
+        content=result,
+        status_code=status.HTTP_200_OK
+    )
+
+@app.get("/login/result")
+async def login_result(federated: bool = None):
+    task_name = metric_login_result(federated)
+    task = celery.send_task(task_name)
+    result = task.get()
+
+    return JSONResponse(
+        content=result,
+        status_code=status.HTTP_200_OK
+    )
+
 
 
 @app.get("/check_task/{id}")
