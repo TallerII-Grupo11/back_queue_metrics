@@ -2,3 +2,7 @@ build:
   docker:
     web: Dockerfile.web
     worker: Dockerfile.worker
+
+run:
+  web: sh web_starter.sh
+  worker: sh worker_starter.sh
