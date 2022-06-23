@@ -5,7 +5,7 @@ import traceback
 from celery import current_task, states
 from celery.exceptions import Ignore
 
-from worker import celery
+from worker import celery, red
 from model import (
     UserRegister,
     UserLogin,
@@ -16,15 +16,16 @@ from model import (
 LOGGER = getLogger(__name__)
 
 
+
 @celery.task(name='user.register', bind=True, acks_late=True)
 def user_register(self, user_id):
-    register = 0
     try:
         LOGGER.info('Starting register task')
-        register += 1
+        total = red.hincrby("metric:user.register", "quantity", 1)
+
         LOGGER.info('Finished register task')
         return {"result": f"New user register {user_id}",
-                "total": f"{register}"}
+                "total": f"{total}"}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
@@ -37,13 +38,13 @@ def user_register(self, user_id):
 
 @celery.task(name='user.login', bind=True, acks_late=True)
 def user_register(self, user_id):
-    register = 0
     try:
-        LOGGER.info('Starting register task')
-        register += 1
-        LOGGER.info('Finished register task')
-        return {"result": f"New user register {user_id}",
-                "total": f"{register}"}
+        LOGGER.info('Starting login task')
+        total = red.hincrby("metric:user.login", "quantity", 1)
+        LOGGER.info('Finished login task')
+
+        return {"result": f"New user login {user_id}",
+                "total": f"{total}"}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
@@ -56,13 +57,12 @@ def user_register(self, user_id):
 
 @celery.task(name='user.login.federated', bind=True, acks_late=True)
 def user_register(self, user_id):
-    register = 0
     try:
-        LOGGER.info('Starting register task')
-        register += 1
-        LOGGER.info('Finished register task')
-        return {"result": f"New user register {user_id}",
-                "total": f"{register}"}
+        LOGGER.info('Starting login federated task')
+        total = red.hincrby("metric:user.login.federated", "quantity", 1)
+        LOGGER.info('Finished login federated task')
+        return {"result": f"New user login federated {user_id}",
+                "total": f"{total}"}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
@@ -75,13 +75,12 @@ def user_register(self, user_id):
 
 @celery.task(name='user.register.federated', bind=True, acks_late=True)
 def user_register(self, user_id):
-    register = 0
     try:
-        LOGGER.info('Starting register task')
-        register += 1
-        LOGGER.info('Finished register task')
+        LOGGER.info('Starting register federated task')
+        total = red.hincrby("metric:user.register.federated", "quantity", 1)
+        LOGGER.info('Finished register federated task')
         return {"result": f"New user register {user_id}",
-                "total": f"{register}"}
+                "total": f"{total}"}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
