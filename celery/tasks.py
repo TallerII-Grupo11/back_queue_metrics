@@ -101,7 +101,7 @@ def user_register(self):
         else:
             total = total.decode("utf-8")
         return {"metric_name": metric_name,
-                "total": total}
+                "total": int(total)}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,
@@ -122,7 +122,7 @@ def user_register(self):
         else:
             total = total.decode("utf-8")
         return {"metric_name": metric_name,
-                "total": total}
+                "total": int(total)}
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,

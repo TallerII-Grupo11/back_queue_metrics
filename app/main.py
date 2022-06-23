@@ -42,22 +42,26 @@ async def register_result(federated: bool = None):
     task = celery.send_task(task_name)
     result = task.get()
 
+    LOGGER.info(f'RESULT {result}')
+
     return JSONResponse(
-        content=result,
+        content={"result": result},
         status_code=status.HTTP_200_OK
     )
 
+
 @app.get("/login/result")
-async def login_result(federated: bool = None):
+async def register_result(federated: bool = None):
     task_name = metric_login_result(federated)
     task = celery.send_task(task_name)
     result = task.get()
 
+    LOGGER.info(f'RESULT {result}')
+
     return JSONResponse(
-        content=result,
+        content={"result": result},
         status_code=status.HTTP_200_OK
     )
-
 
 
 @app.get("/check_task/{id}")

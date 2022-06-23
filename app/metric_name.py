@@ -1,7 +1,7 @@
 
 
 def metric_register(federated: bool = None) -> str:
-    task_name = "user.login"
+    task_name = "user.register"
     if federated:
         task_name += ".federated"
     return task_name
