@@ -8,6 +8,7 @@ from metric_name import *
 from model import User, Task 
 
 title = os.getenv("TITLE")
+port = os.getenv("PORT")
 
 app = FastAPI(title=title)
 
@@ -56,3 +57,6 @@ def check_task(id: str):
         content=response,
         status_code=status.HTTP_200_OK
     )
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=port,  reload=True)
