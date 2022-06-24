@@ -91,38 +91,14 @@ def user_register(self, user_id):
 #        raise ex
 
 
-@celery.task(name='user.register.result', bind=True, acks_late=True)
+@celery.task(name='delete.all', bind=True, acks_late=True)
 def user_register(self):
     try:
-        metric_name = "metric:user.register"
-        total = red.hget(metric_name, "quantity")
-        if not total:
-            total = 0
-        else:
-            total = total.decode("utf-8")
-        return {"metric_name": metric_name,
-                "total": int(total)}
-    except Exception as ex:
-        self.update_state(
-            state=states.FAILURE,
-            meta={
-                'exc_type': type(ex).__name__,
-                'exc_message': traceback.format_exc().split('\n')
-            })
-        raise ex
-
-
-@celery.task(name='user.login.result', bind=True, acks_late=True)
-def user_register(self):
-    try:
-        metric_name = "metric:user.login"
-        total = red.hget(metric_name, "quantity")
-        if not total:
-            total = 0
-        else:
-            total = total.decode("utf-8")
-        return {"metric_name": metric_name,
-                "total": int(total)}
+        red.delete("metric:user.login.")
+        red.delete("metric:user.register.")
+        red.delete("metric:user.login.federated")
+        red.delete("metric:user.register.federated")
+        
     except Exception as ex:
         self.update_state(
             state=states.FAILURE,

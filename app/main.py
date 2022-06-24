@@ -2,12 +2,13 @@ import os
 import json
 import time
 from pydantic import BaseModel
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, HTTPException
 from fastapi.responses import JSONResponse
 from worker import celery
 from metric_name import *
-from model import User, Task
+from model import User
 from logging import getLogger
+from redis_connection import RedisConnection
 
 title = os.getenv("TITLE")
 port = os.getenv("PORT")
@@ -36,32 +37,20 @@ async def new_register(user: User, federated: bool = None):
         status_code=status.HTTP_202_ACCEPTED
     )
 
-@app.get("/register/result")
+@app.get("/metrics")
 async def register_result(federated: bool = None):
-    task_name = metric_register_result(federated)
-    task = celery.send_task(task_name)
-    result = task.get()
-
-    LOGGER.info(f'RESULT {result}')
-
-    return JSONResponse(
-        content={"result": result},
+    try:
+        metrics = get_metrics()
+        results = RedisConnection().get_all_metrics(metrics)
+        return JSONResponse(
+        content=results,
         status_code=status.HTTP_200_OK
     )
-
-
-@app.get("/login/result")
-async def register_result(federated: bool = None):
-    task_name = metric_login_result(federated)
-    task = celery.send_task(task_name)
-    result = task.get()
-
-    LOGGER.info(f'RESULT {result}')
-
-    return JSONResponse(
-        content={"result": result},
-        status_code=status.HTTP_200_OK
-    )
+    except Exception as ex:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not get metrics results. Exception: {ex}"
+        )
 
 
 @app.get("/check_task/{id}")
@@ -87,6 +76,17 @@ def check_task(id: str):
         content=response,
         status_code=status.HTTP_200_OK
     )
+
+
+@app.delete("/metrics") # , include_in_schema=False
+async def register_result(federated: bool = None):
+    task_name = "delete.all"
+    task = celery.send_task(task_name)
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_200_OK
+    )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=port,  reload=True)
