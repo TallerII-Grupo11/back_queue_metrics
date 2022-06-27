@@ -6,7 +6,7 @@ from fastapi import FastAPI, status, HTTPException
 from fastapi.responses import JSONResponse
 from worker import celery
 from metric_name import *
-from model import User
+from model import *
 from logging import getLogger
 from redis_connection import RedisConnection
 
@@ -18,7 +18,7 @@ app = FastAPI(title=title)
 LOGGER = getLogger(__name__)
 
 
-@app.post("/login")
+@app.post("/new/login")
 async def new_login(user: User,  federated: bool = None):
     task_name = metric_login(federated)
     task = celery.send_task(task_name, args=[user.id])
@@ -28,10 +28,19 @@ async def new_login(user: User,  federated: bool = None):
     )
 
 
-@app.post("/register")
+@app.post("/new/user")
 async def new_register(user: User, federated: bool = None):
     task_name = metric_register(federated)
     task = celery.send_task(task_name, args=[user.id])
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+@app.post("/new/song")
+async def new_register(song: Song):
+    task_name = "content.song"
+    task = celery.send_task(task_name, args=[song.artist.artist_id, song.genre])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED

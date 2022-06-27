@@ -55,6 +55,30 @@ def user_register(self, user_id):
         raise ex
 
 
+@celery.task(name='content.song', bind=True, acks_late=True)
+def user_register(self, artist_id, genre):
+    try:
+        LOGGER.info('Starting new song task')
+        genre_q = red.hincrby("metric:song.genre", f"{genre}", 1)
+        artist = red.hincrby("metric:song.artist", f"{artist_id}", 1)
+        total = red.hincrby("metric:song", "quantity", 1)
+        LOGGER.info('Finished new song task')
+
+        return {"result": f"New song",
+                "total": total,
+                "artist": {artist_id: artist},
+                "genre": {genre: genre_q}
+        }
+    except Exception as ex:
+        self.update_state(
+            state=states.FAILURE,
+            meta={
+                'exc_type': type(ex).__name__,
+                'exc_message': traceback.format_exc().split('\n')
+            })
+        raise ex
+
+
 #@celery.task(name='user.login.federated', bind=True, acks_late=True)
 #def user_register(self, user_id):
 #    try:
