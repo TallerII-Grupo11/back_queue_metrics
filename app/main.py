@@ -37,6 +37,7 @@ async def new_register(user: User, federated: bool = None):
         status_code=status.HTTP_202_ACCEPTED
     )
 
+
 @app.post("/new/song")
 async def new_register(song: Song):
     task_name = "new.song"
@@ -46,6 +47,7 @@ async def new_register(song: Song):
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
     )
+
 
 @app.post("/new/album")
 async def new_register(album: Album):
@@ -65,6 +67,7 @@ async def new_register(playlist: Playlist):
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
     )
+
 
 @app.get("/metrics")
 async def register_result(federated: bool = None):
