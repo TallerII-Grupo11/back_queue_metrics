@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    image: web:latest
     env_file:
       - .env
     ports:
@@ -16,7 +15,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker
-    image: worker:latest
     env_file:
       - .env
     command: sh worker_starter.sh

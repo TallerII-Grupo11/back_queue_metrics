@@ -1,19 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import List
 
 
 class User(BaseModel):
     id: str
 
 
-class ArtistModel(BaseModel):
-    artist_id: str = Field(...)
-    artist_name: str = Field(...)
-
-
 class Song(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    _id: str = Field(...)
     title: str = Field(...)
-    artists: List[ArtistModel] = Field(...)
+    artists: List[dict] = Field(...)
     description: str = Field(...)
     genre: str = Field(...)
     song_file: str = Field(...)

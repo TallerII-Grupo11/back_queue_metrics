@@ -2,29 +2,21 @@ from time import sleep
 from logging import getLogger
 import traceback
 
+from metric_name import *
 from celery import current_task, states
 from celery.exceptions import Ignore
 
 from worker import celery, red
-from model import (
-    UserRegister,
-    UserLogin,
-    UserLoginFederated,
-    UserRegisterFederated
-)
 
 LOGGER = getLogger(__name__)
 
 
 
-@celery.task(name='user.register', bind=True, acks_late=True)
-def user_register(self, user_id):
+@celery.task(name='new.register')
+def user_register():
     try:
-        LOGGER.info('Starting register task')
-        total = red.hincrby("metric:user.register", "quantity", 1)
-
-        LOGGER.info('Finished register task')
-        return {"result": f"New user register {user_id}",
+        total = red.hincrby("new.register", "quantity", 1)
+        return {"result": f"New user register",
                 "total": f"{total}"}
     except Exception as ex:
         self.update_state(
@@ -36,14 +28,12 @@ def user_register(self, user_id):
         raise ex
 
 
-@celery.task(name='user.login', bind=True, acks_late=True)
-def user_register(self, user_id):
+@celery.task(name='new.login')
+def user_login():
     try:
-        LOGGER.info('Starting login task')
-        total = red.hincrby("metric:user.login", "quantity", 1)
-        LOGGER.info('Finished login task')
+        total = red.hincrby("new.login", "quantity", 1)
 
-        return {"result": f"New user login {user_id}",
+        return {"result": f"New user login",
                 "total": f"{total}"}
     except Exception as ex:
         self.update_state(
@@ -55,18 +45,20 @@ def user_register(self, user_id):
         raise ex
 
 
-@celery.task(name='content.song', bind=True, acks_late=True)
-def user_register(self, artist_id, genre):
+@celery.task(name='new.song')
+def new_song(artists, genre):
     try:
-        LOGGER.info('Starting new song task')
-        genre_q = red.hincrby("metric:song.genre", f"{genre}", 1)
-        artist = red.hincrby("metric:song.artist", f"{artist_id}", 1)
-        total = red.hincrby("metric:song", "quantity", 1)
-        LOGGER.info('Finished new song task')
+        total = red.hincrby("song", "quantity", 1)
+        genre_q = red.hincrby("song.genre", f"{genre}", 1)
+        list_artist = []
+        for art in artists:
+            artist_id = art['artist_id']
+            artist_count = red.hincrby("song.artist", artist_id, 1)
+            list_artist.append({artist_id: artist_count})
 
         return {"result": f"New song",
                 "total": total,
-                "artist": {artist_id: artist},
+                "artist": list_artist,
                 "genre": {genre: genre_q}
         }
     except Exception as ex:
@@ -79,49 +71,12 @@ def user_register(self, artist_id, genre):
         raise ex
 
 
-#@celery.task(name='user.login.federated', bind=True, acks_late=True)
-#def user_register(self, user_id):
-#    try:
-#        LOGGER.info('Starting login federated task')
-#        total = red.hincrby("metric:user.login.federated", "quantity", 1)
-#        LOGGER.info('Finished login federated task')
-#        return {"result": f"New user login federated {user_id}",
-#                "total": f"{total}"}
-#    except Exception as ex:
-#        self.update_state(
-#            state=states.FAILURE,
-#            meta={
-#                'exc_type': type(ex).__name__,
-#                'exc_message': traceback.format_exc().split('\n')
-#            })
-#        raise ex
-
-
-#@celery.task(name='user.register.federated', bind=True, acks_late=True)
-#def user_register(self, user_id):
-#    try:
-#        LOGGER.info('Starting register federated task')
-#        total = red.hincrby("metric:user.register.federated", "quantity", 1)
-#        LOGGER.info('Finished register federated task')
-#        return {"result": f"New user register {user_id}",
-#                "total": f"{total}"}
-#    except Exception as ex:
-#        self.update_state(
-#            state=states.FAILURE,
-#            meta={
-#                'exc_type': type(ex).__name__,
-#                'exc_message': traceback.format_exc().split('\n')
-#            })
-#        raise ex
-
 
 @celery.task(name='delete.all', bind=True, acks_late=True)
-def user_register(self):
+def delete_metrics():
     try:
-        red.delete("metric:user.login.")
-        red.delete("metric:user.register.")
-        red.delete("metric:user.login.federated")
-        red.delete("metric:user.register.federated")
+        for metric in get_all_metrics():
+            red.delete(metric)
         
     except Exception as ex:
         self.update_state(
