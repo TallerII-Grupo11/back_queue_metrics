@@ -6,7 +6,7 @@ from fastapi import FastAPI, status, HTTPException
 from fastapi.responses import JSONResponse
 from worker import celery
 from metric_name import *
-from model import User
+from model import *
 from logging import getLogger
 from redis_connection import RedisConnection
 
@@ -18,20 +18,29 @@ app = FastAPI(title=title)
 LOGGER = getLogger(__name__)
 
 
-@app.post("/login")
+@app.post("/new/login")
 async def new_login(user: User,  federated: bool = None):
-    task_name = metric_login(federated)
-    task = celery.send_task(task_name, args=[user.id])
+    task_name = "new.login"
+    task = celery.send_task(task_name)
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
     )
 
 
-@app.post("/register")
+@app.post("/new/user")
 async def new_register(user: User, federated: bool = None):
-    task_name = metric_register(federated)
-    task = celery.send_task(task_name, args=[user.id])
+    task_name = "new.register"
+    task = celery.send_task(task_name)
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+@app.post("/new/song")
+async def new_register(song: Song):
+    task_name = "new.song"
+    task = celery.send_task(task_name, args=[song.artists, song.genre])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
@@ -40,12 +49,8 @@ async def new_register(user: User, federated: bool = None):
 @app.get("/metrics")
 async def register_result(federated: bool = None):
     try:
-        metrics = get_metrics()
-        results = RedisConnection().get_all_metrics(metrics)
-        return JSONResponse(
-        content=results,
-        status_code=status.HTTP_200_OK
-    )
+        results = RedisConnection().get_all_metrics()
+        return results
     except Exception as ex:
         raise HTTPException(
             status_code=400,
