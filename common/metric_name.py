@@ -37,13 +37,16 @@ def get_quantity_metrics():
         "new.login.federated",
         "new.register",
         "new.register.federated",
-        "song",
+        "songs",
+        "playlists",
+        "albums",
     ]
     return metrics
 
 def get_song_metrics():
     metrics = [
         "song.genre",
-        "song.artist",
+        "subscription",
+        "user",
     ]
     return metrics
