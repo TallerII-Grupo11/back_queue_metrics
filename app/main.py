@@ -40,7 +40,27 @@ async def new_register(user: User, federated: bool = None):
 @app.post("/new/song")
 async def new_register(song: Song):
     task_name = "new.song"
-    task = celery.send_task(task_name, args=[song.artists, song.genre])
+    artists = song.get_artists()
+    task = celery.send_task(task_name, args=[artists, song.genre])
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+@app.post("/new/album")
+async def new_register(album: Album):
+    task_name = "new.album"
+    task = celery.send_task(task_name, args=[album.subscription, album.artist.dict()])
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+
+@app.post("/new/playlist")
+async def new_register(playlist: Playlist):
+    task_name = "new.playlist"
+    task = celery.send_task(task_name, args=[playlist.owner_id])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
