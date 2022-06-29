@@ -18,7 +18,7 @@ app = FastAPI(title=title)
 LOGGER = getLogger(__name__)
 
 
-@app.post("/new/login")
+@app.post("/login")
 async def new_login(user: User,  federated: bool = None):
     task_name = "new.login"
     task = celery.send_task(task_name)
@@ -28,7 +28,7 @@ async def new_login(user: User,  federated: bool = None):
     )
 
 
-@app.post("/new/user")
+@app.post("/user")
 async def new_register(user: User, federated: bool = None):
     task_name = "new.register"
     task = celery.send_task(task_name)
@@ -49,7 +49,7 @@ async def new_register(song: Song):
     )
 
 
-@app.post("/new/album")
+@app.post("/album")
 async def new_register(album: Album):
     task_name = "new.album"
     task = celery.send_task(task_name, args=[album.subscription, album.artist.dict()])
@@ -59,7 +59,7 @@ async def new_register(album: Album):
     )
 
 
-@app.post("/new/playlist")
+@app.post("/playlist")
 async def new_register(playlist: Playlist):
     task_name = "new.playlist"
     task = celery.send_task(task_name, args=[playlist.owner_id])
