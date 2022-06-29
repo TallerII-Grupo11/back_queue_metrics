@@ -38,7 +38,7 @@ async def new_register(user: User, federated: bool = None):
     )
 
 
-@app.post("/new/song")
+@app.post("/song")
 async def new_register(song: Song):
     task_name = "new.song"
     artists = song.get_artists()
