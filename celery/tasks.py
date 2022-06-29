@@ -72,12 +72,13 @@ def new_song(artists, genre):
 
 
 @celery.task(name='new.album')
-def new_album(subscription, artists):
+def new_album(subscription, artists, genre):
     try:
         artist_id = artists['artist_id']
         total = red.hincrby("albums", "quantity", 1)
         subscription_count = red.hincrby("subscription", f"{subscription}", 1)
         artist = red.hincrby("artist", f"{artist_id}.albums", 1)
+        genre_q = red.hincrby("album.genre", f"{genre}", 1)
         
         return {
             "result": f"New song",

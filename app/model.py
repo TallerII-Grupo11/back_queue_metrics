@@ -26,7 +26,11 @@ class Song(BaseModel):
         return getattr(self, item)
 
     def get_artists(self):
-        return [{"artist_id": a.artist_id for a in self.artists}]
+        list_artists = []
+        for a in self.artists.items():
+            list_artists.append({"artist_id": a.artist_id})
+        return list_artists
+
 
 class Playlist(BaseModel):
     _id: str = Field(...)

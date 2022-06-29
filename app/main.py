@@ -52,7 +52,7 @@ async def new_register(song: Song):
 @app.post("/album")
 async def new_register(album: Album):
     task_name = "new.album"
-    task = celery.send_task(task_name, args=[album.subscription, album.artist.dict()])
+    task = celery.send_task(task_name, args=[album.subscription, album.artist.dict(), album.genre])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
