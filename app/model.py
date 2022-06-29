@@ -27,8 +27,8 @@ class Song(BaseModel):
 
     def get_artists(self):
         list_artists = []
-        for a in self.artists.items():
-            list_artists.append({"artist_id": a.artist_id})
+        for a in self.artists:
+            list_artists.append({"artist_id": a["artist_id"]})
         return list_artists
 
 
