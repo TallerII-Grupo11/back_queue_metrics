@@ -19,7 +19,7 @@ LOGGER = getLogger(__name__)
 
 
 @app.post("/login")
-async def new_login(user: User,  federated: bool = None):
+async def new_login(federated: bool = None):
     task_name = "new.login"
     task = celery.send_task(task_name)
     return JSONResponse(
@@ -29,8 +29,27 @@ async def new_login(user: User,  federated: bool = None):
 
 
 @app.post("/user")
-async def new_register(user: User, federated: bool = None):
+async def new_register(federated: bool = None):
     task_name = "new.register"
+    task = celery.send_task(task_name)
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+@app.post("/blocked")
+async def user_blocked():
+    task_name = "user.block"
+    task = celery.send_task(task_name)
+    return JSONResponse(
+        content={"id": task.id, "name": task_name},
+        status_code=status.HTTP_202_ACCEPTED
+    )
+
+
+@app.post("/reset")
+async def password_reset():
+    task_name = "password.reset"
     task = celery.send_task(task_name)
     return JSONResponse(
         content={"id": task.id, "name": task_name},
@@ -106,7 +125,7 @@ def check_task(id: str):
     )
 
 
-@app.delete("/metrics") # , include_in_schema=False
+@app.delete("/metrics", include_in_schema=False)
 async def register_result(federated: bool = None):
     task_name = "delete.all"
     task = celery.send_task(task_name)

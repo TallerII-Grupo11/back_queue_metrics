@@ -45,6 +45,38 @@ def user_login():
         raise ex
 
 
+@celery.task(name='user.block')
+def user_blocked():
+    try:
+        total = red.hincrby("user.block", "quantity", 1)
+        return {"result": f"New user blocked",
+                "total": f"{total}"}
+    except Exception as ex:
+        self.update_state(
+            state=states.FAILURE,
+            meta={
+                'exc_type': type(ex).__name__,
+                'exc_message': traceback.format_exc().split('\n')
+            })
+        raise ex
+
+
+@celery.task(name='password.reset')
+def password_reset():
+    try:
+        total = red.hincrby("password.reset", "quantity", 1)
+        return {"result": f"New password reset",
+                "total": f"{total}"}
+    except Exception as ex:
+        self.update_state(
+            state=states.FAILURE,
+            meta={
+                'exc_type': type(ex).__name__,
+                'exc_message': traceback.format_exc().split('\n')
+            })
+        raise ex
+
+
 @celery.task(name='new.song')
 def new_song(artists, genre):
     try:
