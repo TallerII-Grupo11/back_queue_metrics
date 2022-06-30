@@ -28,7 +28,7 @@ async def new_login(federated: bool = None):
     )
 
 
-@app.post("/user")
+@app.post("/users")
 async def new_register(federated: bool = None):
     task_name = "new.register"
     task = celery.send_task(task_name)
@@ -47,7 +47,7 @@ async def user_blocked():
     )
 
 
-@app.post("/reset")
+@app.post("/password_reset")
 async def password_reset():
     task_name = "password.reset"
     task = celery.send_task(task_name)
