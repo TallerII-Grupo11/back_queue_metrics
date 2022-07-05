@@ -89,7 +89,7 @@ async def new_register(playlist: Playlist):
 
 
 @app.get("/metrics")
-async def register_result(federated: bool = None):
+async def register_result():
     try:
         results = RedisConnection().get_all_metrics()
         return results
