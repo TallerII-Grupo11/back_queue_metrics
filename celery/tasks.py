@@ -13,9 +13,12 @@ LOGGER = getLogger(__name__)
 
 
 @celery.task(name='new.register')
-def user_register():
+def user_register(federeted):
     try:
-        total = red.hincrby("new.register", "quantity", 1)
+        if federeted == True:
+            total = red.hincrby("new.register.federeted", "quantity", 1)
+        else:
+            total = red.hincrby("new.register", "quantity", 1)
         return {"result": f"New user register",
                 "total": f"{total}"}
     except Exception as ex:
@@ -29,9 +32,12 @@ def user_register():
 
 
 @celery.task(name='new.login')
-def user_login():
+def user_login(federeted):
     try:
-        total = red.hincrby("new.login", "quantity", 1)
+        if federeted == True:
+            total = red.hincrby("new.login.federated", "quantity", 1)
+        else:
+            total = red.hincrby("new.login", "quantity", 1)
 
         return {"result": f"New user login",
                 "total": f"{total}"}

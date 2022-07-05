@@ -21,7 +21,7 @@ LOGGER = getLogger(__name__)
 @app.post("/login")
 async def new_login(federated: bool = None):
     task_name = "new.login"
-    task = celery.send_task(task_name)
+    task = celery.send_task(task_name, args=[federated])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
@@ -31,7 +31,7 @@ async def new_login(federated: bool = None):
 @app.post("/users")
 async def new_register(federated: bool = None):
     task_name = "new.register"
-    task = celery.send_task(task_name)
+    task = celery.send_task(task_name, args=[federated])
     return JSONResponse(
         content={"id": task.id, "name": task_name},
         status_code=status.HTTP_202_ACCEPTED
