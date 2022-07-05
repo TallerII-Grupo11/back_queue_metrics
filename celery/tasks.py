@@ -132,7 +132,7 @@ def new_album(subscription, artists, genre):
 def new_playlist(user_id):
     try:
         total = red.hincrby("playlists", "quantity", 1)
-        listener = red.hincrby("listener", "{user_id}.playlists", 1)
+        listener = red.hincrby("listener", f"{user_id}.playlists", 1)
 
         return {
             "result": f"New song",
