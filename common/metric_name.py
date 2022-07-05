@@ -47,7 +47,6 @@ def get_song_metrics():
     metrics = [
         "songs.genre",
         "subscription",
-        "user",
         "listener",
         "artist",
     ]
