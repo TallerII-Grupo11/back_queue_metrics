@@ -135,5 +135,15 @@ async def register_result(federated: bool = None):
     )
 
 
+@app.get(
+    "/health",
+    response_description="Get API Status",
+    response_model=HealthStatusResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def health():
+    return HealthStatusResponse(status="UP")
+
+
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=port,  reload=True)

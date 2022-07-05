@@ -2,6 +2,11 @@ from pydantic import BaseModel, Field
 from typing import List
 
 
+
+class HealthStatusResponse(BaseModel):
+    status: str
+
+
 class User(BaseModel):
     id: str
 
